@@ -1,6 +1,6 @@
 {
   "name": "bsc-plugin-auto-findnode",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A BrighterScript plugin that auto-injects `m.top.findNode()` calls in your component `init()` functions",
   "main": "dist/index.js",
   "scripts": {
