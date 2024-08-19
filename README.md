@@ -1,4 +1,5 @@
 # bsc-plugin-auto-findnode
+
 A BrighterScript plugin that auto-injects `m.top.findNode()` calls in your component `init()` functions
 
 [![build status](https://img.shields.io/github/actions/workflow/status/rokucommunity/bsc-plugin-auto-findnode/build.yml?branch=master&logo=github)](https://github.com/rokucommunity/bsc-plugin-auto-findnode/actions?query=branch%3Amaster+workflow%3Abuild)
@@ -20,14 +21,64 @@ npm install bsc-plugin-auto-findnode
 
 ```jsonc
 {
-    "plugins": [
-        "bsc-plugin-auto-findnode"
-    ]
+  "plugins": ["bsc-plugin-auto-findnode"]
 }
 ```
 
 3. Run brighterscript like normal, and the plugin will work!
+
 ```bash
 npx bsc
 ```
 
+## How it works
+
+1. find every xml file in the project
+2. find every element with an ID in that xml file
+3. find the `init()` function for each scope (or create one in a new file)
+4. inject `m.<elementId> = m.top.findNode("<elementId>")` into the init function
+
+For example:
+
+**Before:**
+
+_pkg:/components/ZombieKeyboard.xml_
+
+```xml
+<component name="ZombieKeyboard">
+    <children>
+        <label id="helloZombieText" />
+    </children>
+    <script uri="ZombieKeyboard.brs" />
+</component>
+```
+
+_pkg:/components/ZombieKeyboard.brs_
+
+```brightscript
+sub init()
+    print "init for the keyboard!"
+end sub
+```
+
+**After:**
+
+_pkg:/components/ZombieKeyboard.xml_
+
+```xml
+<component name="ZombieKeyboard">
+    <children>
+        <label id="helloZombieText" />
+    </children>
+    <script uri="ZombieKeyboard.brs" />
+</component>
+```
+
+_pkg:/components/ZombieKeyboard.brs_
+
+```brightscript
+sub init()
+    m.helloZombieText = m.top.findNode("helloZombieText")
+    print "init for the keyboard!"
+end sub
+```
