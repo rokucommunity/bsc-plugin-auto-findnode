@@ -191,10 +191,10 @@ module.exports = {
     },
     //disable some rules for certain files
     overrides: [
-    {
-        files: ['*.spec.ts'],
-        rules: {
-            '@typescript-eslint/no-unsafe-assignment': 'off',
-        }
-    }]
+        {
+            files: ['*.spec.ts'],
+            rules: {
+                '@typescript-eslint/no-unsafe-assignment': 'off',
+            }
+        }]
 };
