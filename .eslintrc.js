@@ -12,7 +12,8 @@ module.exports = {
     },
     plugins: [
         '@typescript-eslint',
-        'no-only-tests'
+        'no-only-tests',
+        'jsdoc'
     ],
     extends: [
         'eslint:all',
