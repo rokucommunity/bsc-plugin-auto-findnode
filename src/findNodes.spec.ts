@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { Program, util } from 'brighterscript';
 import { expect } from 'chai';
 import { Plugin } from './Plugin';

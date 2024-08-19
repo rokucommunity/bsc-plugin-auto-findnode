@@ -2,22 +2,22 @@ import type { AstEditor, BeforeFileValidateEvent, BscFile, CompilerPlugin, Plugi
 import { findNodeWithIDInjection, validateNodeWithIDInjection } from './findNodes';
 
 export class Plugin implements CompilerPlugin {
-	name = 'bsc-plugin-findnodes';
+    name = 'bsc-plugin-findnodes';
 
-	private createdFiles = [];
+    private createdFiles = [];
 
-	beforeProgramValidate(program: Program) {
-		validateNodeWithIDInjection(program);
-	}
+    beforeProgramValidate(program: Program) {
+        validateNodeWithIDInjection(program);
+    }
 
-	beforeProgramTranspile(program: Program, entries: TranspileObj[], editor: AstEditor) {
-		this.createdFiles = [];
-		findNodeWithIDInjection(program, entries, editor, this.createdFiles);
-	}
+    beforeProgramTranspile(program: Program, entries: TranspileObj[], editor: AstEditor) {
+        this.createdFiles = [];
+        findNodeWithIDInjection(program, entries, editor, this.createdFiles);
+    }
 
-	afterProgramTranspile(program: Program) {
-		for (const file of this.createdFiles as BscFile[]) {
-			program.removeFile(file.pkgPath);
-		}
-	}
+    afterProgramTranspile(program: Program) {
+        for (const file of this.createdFiles as BscFile[]) {
+            program.removeFile(file.pkgPath);
+        }
+    }
 }
