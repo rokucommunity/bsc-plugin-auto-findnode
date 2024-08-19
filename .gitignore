@@ -1,5 +1,13 @@
-# Data store
+node_modules*
+dist
+out
+.tmp
+.history
 .DS_Store
-
-node_modules/
-dist/
+.roku-deploy-staging
+coverage
+.nyc_output
+*.zip
+isolate-*
+v8*.log
+*.cpuprofile
