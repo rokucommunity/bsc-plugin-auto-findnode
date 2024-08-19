@@ -56,10 +56,10 @@ export function findNodeWithIDInjection(program: Program, entries: TranspileObj[
                     // eslint-disable-next-line max-statements-per-line, @typescript-eslint/brace-style
                     const assignments = Array.from(ids).map(([id, range]) => { return `m.${id} = m.top.findNode("${id}")`; }).join('\n');
                     const statements = (Parser.parse(`
-                    sub temp()
-                        ${assignments}
-                    end sub
-                `).statements[0] as FunctionStatement).func.body.statements;
+                        sub temp()
+                            ${assignments}
+                        end sub
+                    `).statements[0] as FunctionStatement).func.body.statements;
                     //add the assignments to the top of the init function
                     editor.arrayUnshift(initFunction.func.body.statements, ...statements);
                 }
