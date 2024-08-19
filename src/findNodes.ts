@@ -106,7 +106,7 @@ export function validateNodeWithIDInjection(program: Program) {
                                 let warningRange = ids.get(id);
                                 if (warningRange !== undefined) {
                                     initFunctionFile!.diagnostics.push({
-                                        file: initFunctionFile,
+                                        file: initFunctionFile!,
                                         range: expression.range,
                                         severity: DiagnosticSeverity.Warning,
                                         message: `Unnecessary call to 'm.top.findNode("${id}")'`,
