@@ -9,7 +9,7 @@ describe('findnode', () => {
     const rootDir = path.join(__dirname, '../.tmp');
 
     beforeEach(() => {
-        program = new Program({rootDir: rootDir});
+        program = new Program({ rootDir: rootDir });
         program.plugins.add(new Plugin());
     });
 
@@ -173,7 +173,7 @@ describe('findnode', () => {
             message: `Unnecessary call to 'm.top.findNode("helloZombieText")'`,
             range: util.createRange(2, 36, 2, 69),
             relatedInformation: [{
-                message: `In scope 'components/ZombieKeyboard.xml'`,
+                message: `In scope 'components${path.sep}ZombieKeyboard.xml'`,
                 location: util.createLocation(
                     util.pathToUri(`${rootDir}/components/ZombieKeyboard.xml`),
                     util.createRange(4, 31, 4, 46)
@@ -183,7 +183,7 @@ describe('findnode', () => {
             message: `Unnecessary call to 'm.top.findNode("helloZombieText")'`,
             range: util.createRange(3, 37, 3, 70),
             relatedInformation: [{
-                message: `In scope 'components/ZombieKeyboard.xml'`,
+                message: `In scope 'components${path.sep}ZombieKeyboard.xml'`,
                 location: util.createLocation(
                     util.pathToUri(`${rootDir}/components/ZombieKeyboard.xml`),
                     util.createRange(4, 31, 4, 46)
