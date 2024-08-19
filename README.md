@@ -21,7 +21,9 @@ npm install bsc-plugin-auto-findnode
 
 ```jsonc
 {
-  "plugins": ["bsc-plugin-auto-findnode"]
+    "plugins": [
+        "bsc-plugin-auto-findnode"
+    ]
 }
 ```
 
