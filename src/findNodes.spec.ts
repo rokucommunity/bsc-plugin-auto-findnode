@@ -1,6 +1,7 @@
 import { Program } from 'brighterscript';
 import { expect } from 'chai';
 import { Plugin } from './Plugin';
+import * as path from 'path';
 import undent from 'undent';
 
 describe('findnode', () => {
@@ -11,8 +12,7 @@ describe('findnode', () => {
 		program.plugins.add(new Plugin());
 	});
 
-	// it works when a bs file is present
-	it('works', async () => {
+	it('it works when a bs file is present', async () => {
 		program.setFile('components/ZombieKeyboard.bs', `
 			sub init()
 				print "hello"
@@ -37,8 +37,7 @@ describe('findnode', () => {
 		`);
 	});
 
-	// it works when no bs file is present
-	it('works', async () => {
+	it('it works when no bs file is present', async () => {
 		program.setFile('components/ZombieKeyboard.xml', `
 			<component name="ZombieKeyboard">
 				<children>
@@ -55,8 +54,7 @@ describe('findnode', () => {
 		`);
 	});
 
-	// it works when an empty file is present
-	it('works', async () => {
+	it('it works when an empty file is present', async () => {
 		program.setFile('components/ZombieKeyboard.bs', `
 		`);
 
@@ -76,8 +74,7 @@ describe('findnode', () => {
 		`);
 	});
 
-	// it works when an file is present with an empty init function
-	it('works', async () => {
+	it('it works when an file is present with an empty init function', async () => {
 		program.setFile('components/ZombieKeyboard.bs', `
 			sub init()
 			end sub
@@ -99,8 +96,7 @@ describe('findnode', () => {
 		`);
 	});
 
-	// it works when you m scope the same node with a separate variable name
-	it('works', async () => {
+	it('it works when you m scope the same node with a separate variable name', async () => {
 		program.setFile('components/ZombieKeyboard.bs', `
 			sub init()
 				m.helloZombieText2 = m.top.findNode("helloZombieText")
@@ -125,8 +121,7 @@ describe('findnode', () => {
 		`);
 	});
 
-	// it works when you define a variable that would be found by findNode, resulting in a duplicate declaration
-	it('works', async () => {
+	it('it works when you define a variable that would be found by findNode, resulting in a duplicate declaration', async () => {
 		program.setFile('components/ZombieKeyboard.bs', `
 			sub init()
 				m.helloZombieText = m.top.findNode("helloZombieText")
@@ -153,8 +148,7 @@ describe('findnode', () => {
 		`);
 	});
 
-	// it gives a warning when you define a variable that would be found by findNode
-	it('works', () => {
+	it('it gives a warning when you define a variable that would be found by findNode', () => {
 		program.setFile('components/ZombieKeyboard.bs', `
 			sub init()
 				m.helloZombieText = m.top.findNode("helloZombieText")
@@ -172,11 +166,14 @@ describe('findnode', () => {
 		`);
 
 		program.validate();
-		expect(program.getDiagnostics().map(x => x.message)).to.eql(['Unnecessary declaration of "m.helloZombieText" in "components/ZombieKeyboard.bs"']);
+		expect(
+			program.getDiagnostics().map(x => x.message)
+		).to.eql([
+			`Unnecessary declaration of "m.helloZombieText" in "components${path.sep}ZombieKeyboard.bs"`
+		]);
 	});
 
-	// it works when you extend a component and founds nodes are declared within their correct component
-	it.only('works', async () => {
+	it('it works when you extend a component and founds nodes are declared within their correct component', async () => {
 		program.setFile('components/BaseKeyboard.xml', `
 			<component name="BaseKeyboard">
 				<children>

@@ -7,7 +7,8 @@
     "preversion": "npm run build && npm run lint && npm run test",
     "build": "rimraf out && tsc",
     "lint": "eslint \"src/**\"",
-    "test": "mocha",
+    "test:nocover": "mocha",
+    "test": "nyc mocha",
     "publish-coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "mocha": {
@@ -22,6 +23,30 @@
       "ts"
     ]
   },
+  "nyc": {
+    "include": [
+      "src/**/*.ts",
+      "!src/**/*.spec.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "source-map-support/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true,
+    "check-coverage": false,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -32,11 +57,13 @@
     "@typescript-eslint/parser": "^5.30.7",
     "brighterscript": "^0.65.16",
     "chai": "^4.2.0",
+    "coveralls-next": "^4.2.0",
     "eslint": "^8.20.0",
     "mocha": "^9.1.3",
+    "nyc": "^15.1.0",
     "rimraf": "^2.7.1",
     "source-map-support": "^0.5.21",
-    "ts-node": "^8.9.1",
+    "ts-node": "^10.9.2",
     "typescript": "^4.7.2",
     "undent": "^0.1.0"
   }
