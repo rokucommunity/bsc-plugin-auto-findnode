@@ -78,7 +78,7 @@ export function validateNodeWithIDInjection(program: Program) {
 				const scopeFiles: BscFile[] = scope.getOwnFiles();
 
 				let initFunction: FunctionStatement | undefined;
-				let initFunctionFile: BrsFile | undefined;
+				let initFunctionFile: BscFile | undefined;
 
 				for (const file of scopeFiles) {
 					if (isBrsFile(file)) {
