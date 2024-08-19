@@ -169,7 +169,8 @@ describe('findnode', () => {
 		expect(
 			program.getDiagnostics().map(x => x.message)
 		).to.eql([
-			`Unnecessary declaration of "m.helloZombieText" in "components${path.sep}ZombieKeyboard.bs"`
+			`Unnecessary call to 'm.top.findNode("helloZombieText")'`,
+			`Unnecessary call to 'm.top.findNode("helloZombieText")'`
 		]);
 	});
 

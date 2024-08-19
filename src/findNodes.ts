@@ -1,6 +1,6 @@
-import type { AstEditor, FunctionStatement, BrsFile, Program, TranspileObj, BscFile } from 'brighterscript';
+import type { AstEditor, FunctionStatement, BrsFile, Program, TranspileObj, BscFile, Statement } from 'brighterscript';
 // eslint-disable-next-line no-duplicate-imports
-import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity } from 'brighterscript';
+import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity, createVisitor, WalkMode, isDottedGetExpression, isVariableExpression, isLiteralString, util } from 'brighterscript';
 import type { SGNode } from 'brighterscript/dist/parser/SGTypes';
 
 function findChildrenWithIDs(children: Array<SGNode>): string[] {
@@ -77,7 +77,6 @@ export function validateNodeWithIDInjection(program: Program) {
 			if (ids.length > 0) {
 				const scopeFiles: BscFile[] = scope.getOwnFiles();
 
-				//find an init function from all the scope's files
 				let initFunction: FunctionStatement | undefined;
 				let initFunctionFile: BrsFile | undefined;
 
@@ -100,15 +99,34 @@ export function validateNodeWithIDInjection(program: Program) {
 						},
 						severity: DiagnosticSeverity.Warning
 					};
-					initFunction.func.body.statements.forEach((statement: FunctionStatement) => {
-						let variableName = statement.name.text;
-						if (ids.includes(variableName)) {
-							initFunctionFile!.diagnostics.push({
-								...baseDiagnostic,
-								message: `Unnecessary declaration of "m.${statement.name.text}" in "${initFunctionFile!.pkgPath}"`
-							});
+					initFunction.func.body.walk(createVisitor({
+						CallExpression: (expression) => {
+							if (
+								isDottedGetExpression(expression.callee) &&
+								expression.callee.name.text.toLocaleLowerCase() === 'findnode' &&
+								isDottedGetExpression(expression.callee.obj) &&
+								expression.callee.obj.name.text.toLocaleLowerCase() === 'top' &&
+								isVariableExpression(expression.callee.obj.obj) &&
+								expression.callee.obj.obj.name.text.toLocaleLowerCase() === 'm' &&
+								isLiteralString(expression.args[0])
+							) {
+								let id = expression.args[0].token.text.replace(/^"/, '').replace(/"$/, '');
+								if (id && ids.includes(id)) {
+									initFunctionFile!.diagnostics.push({
+										...baseDiagnostic,
+										message: `Unnecessary call to 'm.top.findNode("${id}")'`,
+										relatedInformation: [{
+											message: `In scope '${scope.name}'`,
+											location: util.createLocation(
+												util.pathToUri(xmlFile.srcPath),
+												util.createRange(0, 0, 0, 100)
+											)
+										}]
+									});
+								}
+							}
 						}
-					});
+					}), { walkMode: WalkMode.visitExpressions });
 				}
 			}
 		}
