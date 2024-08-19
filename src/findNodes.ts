@@ -1,17 +1,16 @@
-import type { AstEditor, FunctionStatement, BrsFile, Program, TranspileObj, BscFile, Statement } from 'brighterscript';
-// eslint-disable-next-line no-duplicate-imports
+import type { AstEditor, FunctionStatement, BrsFile, Program, TranspileObj, BscFile, Statement, Range } from 'brighterscript';
 import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity, createVisitor, WalkMode, isDottedGetExpression, isVariableExpression, isLiteralString, util } from 'brighterscript';
 import type { SGNode } from 'brighterscript/dist/parser/SGTypes';
 
-function findChildrenWithIDs(children: Array<SGNode>): string[] {
-    let foundIDs: string[] = [];
+function findChildrenWithIDs(children: Array<SGNode>): Map<string, Range> {
+    let foundIDs = new Map<string, Range>();
     if (children) {
         children.forEach(child => {
             if (child.id) {
-                foundIDs.push(child.id);
+                foundIDs.set(child.id, child.attributes.find(x => x.key.text === 'id')?.value?.range ?? util.createRange(0, 0, 0, 100));
             }
             const subChildren = findChildrenWithIDs(child.children);
-            foundIDs = foundIDs.concat(subChildren);
+            foundIDs = new Map([...foundIDs, ...subChildren]);
         });
     }
     return foundIDs;
@@ -22,7 +21,7 @@ export function findNodeWithIDInjection(program: Program, entries: TranspileObj[
         if (isXmlScope(scope)) {
             const xmlFile = scope.xmlFile;
             const ids = findChildrenWithIDs(xmlFile.parser.ast.component?.children?.children ?? []);
-            if (ids.length > 0) {
+            if (ids.size > 0) {
                 const scopeFiles: BscFile[] = scope.getOwnFiles();
 
                 //find an init function from all the scope's files
@@ -55,12 +54,12 @@ export function findNodeWithIDInjection(program: Program, entries: TranspileObj[
                 if (initFunction) {
                     //add m variables for every xml component that has an id
                     // eslint-disable-next-line max-statements-per-line, @typescript-eslint/brace-style
-                    const assignments = ids.map(id => { return `m.${id} = m.top.findNode("${id}")`; }).join('\n');
+                    const assignments = Array.from(ids).map(([id, range]) => { return `m.${id} = m.top.findNode("${id}")`; }).join('\n');
                     const statements = (Parser.parse(`
-					sub temp()
-						${assignments}
-					end sub
-				`).statements[0] as FunctionStatement).func.body.statements;
+                        sub temp()
+                            ${assignments}
+                        end sub
+                    `).statements[0] as FunctionStatement).func.body.statements;
                     //add the assignments to the top of the init function
                     editor.arrayUnshift(initFunction.func.body.statements, ...statements);
                 }
@@ -74,11 +73,11 @@ export function validateNodeWithIDInjection(program: Program) {
         if (isXmlScope(scope)) {
             const xmlFile = scope.xmlFile;
             const ids = findChildrenWithIDs(xmlFile.parser.ast.component?.children?.children ?? []);
-            if (ids.length > 0) {
+            if (ids.size > 0) {
                 const scopeFiles: BscFile[] = scope.getOwnFiles();
 
                 let initFunction: FunctionStatement | undefined;
-                let initFunctionFile: BrsFile | undefined;
+                let initFunctionFile: BscFile | undefined;
 
                 for (const file of scopeFiles) {
                     if (isBrsFile(file)) {
@@ -103,7 +102,8 @@ export function validateNodeWithIDInjection(program: Program) {
                                 isLiteralString(expression.args[0])
                             ) {
                                 let id = expression.args[0].token.text.replace(/^"/, '').replace(/"$/, '');
-                                if (id && ids.includes(id)) {
+                                let warningRange = ids.get(id);
+                                if (warningRange !== undefined) {
                                     initFunctionFile!.diagnostics.push({
                                         file: initFunctionFile!,
                                         range: expression.range,
@@ -113,7 +113,7 @@ export function validateNodeWithIDInjection(program: Program) {
                                             message: `In scope '${scope.name}'`,
                                             location: util.createLocation(
                                                 util.pathToUri(xmlFile.srcPath),
-                                                util.createRange(0, 0, 0, 100)
+                                                warningRange
                                             )
                                         }]
                                     });

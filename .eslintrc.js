@@ -13,7 +13,8 @@ module.exports = {
     plugins: [
         '@typescript-eslint',
         'no-only-tests',
-        'jsdoc'
+        'jsdoc',
+        'import'
     ],
     extends: [
         'eslint:all',
@@ -133,6 +134,8 @@ module.exports = {
         'max-lines-per-function': 'off',
         'max-params': 'off',
         'max-statements': 'off',
+        'import/no-duplicates': ['error'],
+        'no-duplicate-imports': 'off',
         'no-only-tests/no-only-tests': 'error',
         'multiline-comment-style': 'off',
         'multiline-ternary': 'off',

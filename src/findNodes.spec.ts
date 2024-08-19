@@ -6,9 +6,10 @@ import undent from 'undent';
 
 describe('findnode', () => {
     let program: Program;
+    const rootDir = path.join(__dirname, '../.tmp');
 
     beforeEach(() => {
-        program = new Program({});
+        program = new Program({ rootDir: rootDir });
         program.plugins.add(new Plugin());
     });
 
@@ -167,13 +168,27 @@ describe('findnode', () => {
 
         program.validate();
         expect(
-            program.getDiagnostics().map(x => ({ message: x.message, range: x.range }))
+            program.getDiagnostics().map(x => ({ message: x.message, range: x.range, relatedInformation: x.relatedInformation }))
         ).to.eql([{
             message: `Unnecessary call to 'm.top.findNode("helloZombieText")'`,
-            range: util.createRange(2, 36, 2, 69)
+            range: util.createRange(2, 36, 2, 69),
+            relatedInformation: [{
+                message: `In scope 'components${path.sep}ZombieKeyboard.xml'`,
+                location: util.createLocation(
+                    util.pathToUri(`${rootDir}/components/ZombieKeyboard.xml`),
+                    util.createRange(4, 31, 4, 46)
+                )
+            }]
         }, {
             message: `Unnecessary call to 'm.top.findNode("helloZombieText")'`,
-            range: util.createRange(3, 37, 3, 70)
+            range: util.createRange(3, 37, 3, 70),
+            relatedInformation: [{
+                message: `In scope 'components${path.sep}ZombieKeyboard.xml'`,
+                location: util.createLocation(
+                    util.pathToUri(`${rootDir}/components/ZombieKeyboard.xml`),
+                    util.createRange(4, 31, 4, 46)
+                )
+            }]
         }]);
     });
 
