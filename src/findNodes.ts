@@ -91,14 +91,6 @@ export function validateNodeWithIDInjection(program: Program) {
 				}
 
 				if (initFunction && initFunctionFile) {
-					let baseDiagnostic = {
-						file: initFunctionFile,
-						range: {
-							start: { line: 0, character: 0 },
-							end: { line: 0, character: 0 }
-						},
-						severity: DiagnosticSeverity.Warning
-					};
 					initFunction.func.body.walk(createVisitor({
 						CallExpression: (expression) => {
 							if (
@@ -113,7 +105,9 @@ export function validateNodeWithIDInjection(program: Program) {
 								let id = expression.args[0].token.text.replace(/^"/, '').replace(/"$/, '');
 								if (id && ids.includes(id)) {
 									initFunctionFile!.diagnostics.push({
-										...baseDiagnostic,
+										file: initFunctionFile,
+										range: expression.range,
+										severity: DiagnosticSeverity.Warning,
 										message: `Unnecessary call to 'm.top.findNode("${id}")'`,
 										relatedInformation: [{
 											message: `In scope '${scope.name}'`,
