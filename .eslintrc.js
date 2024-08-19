@@ -12,9 +12,7 @@ module.exports = {
     },
     plugins: [
         '@typescript-eslint',
-        'no-only-tests',
-        'jsdoc',
-        'import'
+        'no-only-tests'
     ],
     extends: [
         'eslint:all',
@@ -22,12 +20,6 @@ module.exports = {
         'plugin:jsdoc/recommended',
         'plugin:import/typescript'
     ],
-    settings: {
-        'import/resolver': {
-            typescript: true,
-            node: true
-        }
-    },
     rules: {
         '@typescript-eslint/array-type': 'off',
         '@typescript-eslint/consistent-type-assertions': 'off',
@@ -127,9 +119,6 @@ module.exports = {
         'getter-return': 'off',
         'guard-for-in': 'off',
         'id-length': 'off',
-        'import/no-extraneous-dependencies': ['error', {
-            'devDependencies': ['**/*.spec.ts']
-        }],
         'indent': 'off',
         'init-declarations': 'off',
         'line-comment-position': 'off',
