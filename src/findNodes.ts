@@ -1,5 +1,4 @@
 import type { AstEditor, FunctionStatement, BrsFile, Program, TranspileObj, BscFile, Statement, Range } from 'brighterscript';
-// eslint-disable-next-line no-duplicate-imports
 import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity, createVisitor, WalkMode, isDottedGetExpression, isVariableExpression, isLiteralString, util } from 'brighterscript';
 import type { SGNode } from 'brighterscript/dist/parser/SGTypes';
 
