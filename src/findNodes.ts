@@ -7,7 +7,7 @@ function findChildrenWithIDs(children: Array<SGNode>): Map<string, Range> {
     if (children) {
         children.forEach(child => {
             if (child.id) {
-                foundIDs.set(child.id, child.attributes.find(x => x.key.text === 'id')?.key.range ?? util.createRange(0, 0, 0, 100));
+                foundIDs.set(child.id, child.attributes.find(x => x.key.text === 'id')?.value?.range ?? util.createRange(0, 0, 0, 100));
             }
             const subChildren = findChildrenWithIDs(child.children);
             foundIDs = new Map([...foundIDs, ...subChildren]);
