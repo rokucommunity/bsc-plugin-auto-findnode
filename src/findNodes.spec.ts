@@ -9,7 +9,7 @@ describe('findnode', () => {
     const rootDir = path.join(__dirname, '../.tmp');
 
     beforeEach(() => {
-        program = new Program({rootDir: rootDir});
+        program = new Program({ rootDir: rootDir });
         program.plugins.add(new Plugin());
     });
 
