@@ -176,7 +176,7 @@ describe('findnode', () => {
 	});
 
 	// it works when you extend a component and founds nodes are declared within their correct component
-	it.only('works', async () => {
+	it('works', async () => {
 		program.setFile('components/BaseKeyboard.xml', `
 			<component name="BaseKeyboard">
 				<children>
