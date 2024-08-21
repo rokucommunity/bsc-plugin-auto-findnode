@@ -19,8 +19,7 @@ function findChildrenWithIDs(children: Array<SGNode>): Map<string, Range> {
 }
 
 function getFilteredScopes(program: Program) {
-    const config = program.options['autoFindNode'] || { 'excludeFiles': [] };
-    const excludeScopes = config.excludeFiles || [];
+    const excludeScopes = (program.options as any).autoFindNode?.excludeFiles || [];
     let scopes: XmlScope[] = [];
 
     const includePatterns = excludeScopes.filter(pattern => pattern.startsWith('!')).map(pattern => pattern.slice(1));
