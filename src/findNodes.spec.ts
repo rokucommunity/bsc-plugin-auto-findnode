@@ -229,10 +229,12 @@ describe('findnode', () => {
         `);
     });
 
-
     it('it works when provide an excludeFiles config', async () => {
         program.options.autoFindNode = {
-            'excludeFiles': ['components/noreplace/**/*']
+            'excludeFiles': [
+                'components/noreplace/**/*',
+                "!components/noreplace/sub/**/*"
+            ]
         };
 
         program.setFile('components/replace/BaseKeyboard.bs', `
@@ -277,6 +279,30 @@ describe('findnode', () => {
         result = await program.getTranspiledFileContents('components/noreplace/BaseKeyboard.bs');
         expect(result.code).to.equal(undent`
             sub init()
+                m.helloText.text = "HELLO ZOMBIE"
+            end sub
+        `);
+
+        // Now we test the same code in the folder that should be excluded
+        program.setFile('components/noreplace/sub/BaseKeyboard.bs', `
+            sub init()
+                m.helloText.text = "HELLO ZOMBIE"
+            end sub
+        `);
+
+        program.setFile('components/noreplace/sub/BaseKeyboard.xml', `
+            <component name="BaseKeyboard">
+                <script uri="BaseKeyboard.bs" />
+                <children>
+                    <label id="helloText" />
+                </children>
+            </component>
+        `);
+
+        result = await program.getTranspiledFileContents('components/noreplace/sub/BaseKeyboard.bs');
+        expect(result.code).to.equal(undent`
+            sub init()
+                m.helloText = m.top.findNode("helloText")
                 m.helloText.text = "HELLO ZOMBIE"
             end sub
         `);

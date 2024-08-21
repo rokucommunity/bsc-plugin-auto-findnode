@@ -22,13 +22,25 @@ function getFilteredScopes(program: Program) {
     const excludeScopes = program.options?.autoFindNode?.excludeFiles || [];
     let scopes: XmlScope[] = [];
 
-    const hasExclusions = excludeScopes.length > 0;
+    const includePatterns = excludeScopes.filter(pattern => pattern.startsWith('!')).map(pattern => pattern.slice(1));
+    const excludePatterns = excludeScopes.filter(pattern => !pattern.startsWith('!'));
+
+    const hasExclusions = excludePatterns.length > 0;
 
     for (const filteredScope of program.getScopes().filter((scope) => isXmlScope(scope))) {
+        let isIncluded = includePatterns.some((pattern: string) =>
+            minimatch.match([filteredScope.name], pattern).length > 0
+        );
+
+        if (isIncluded) {
+            scopes.push(filteredScope);
+            continue; // Skip further checks since it's explicitly included
+        }
+
         if (!hasExclusions) {
             scopes.push(filteredScope);
         } else {
-            let isExcluded = excludeScopes.some((pattern: string) => 
+            let isExcluded = excludePatterns.some((pattern: string) => 
                 minimatch.match([filteredScope.name], pattern).length > 0
             );
             if (!isExcluded) {
