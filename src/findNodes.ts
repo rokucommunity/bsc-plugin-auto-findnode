@@ -28,6 +28,11 @@ function getFilteredScopes(program: Program) {
     const hasExclusions = excludePatterns.length > 0;
 
     for (const filteredScope of program.getScopes().filter((scope) => isXmlScope(scope))) {
+        if (!hasExclusions) {
+            scopes.push(filteredScope);
+            continue; // Skip further checks since it's explicitly included
+        }
+
         let isIncluded = includePatterns.some((pattern: string) =>
             minimatch.match([filteredScope.name], pattern).length > 0
         );
@@ -37,15 +42,11 @@ function getFilteredScopes(program: Program) {
             continue; // Skip further checks since it's explicitly included
         }
 
-        if (!hasExclusions) {
+        let isExcluded = excludePatterns.some((pattern: string) => 
+            minimatch.match([filteredScope.name], pattern).length > 0
+        );
+        if (!isExcluded) {
             scopes.push(filteredScope);
-        } else {
-            let isExcluded = excludePatterns.some((pattern: string) => 
-                minimatch.match([filteredScope.name], pattern).length > 0
-            );
-            if (!isExcluded) {
-                scopes.push(filteredScope);
-            }
         }
     }
 
