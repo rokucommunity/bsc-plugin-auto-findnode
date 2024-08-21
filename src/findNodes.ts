@@ -53,7 +53,6 @@ function getFilteredScopes(program: Program) {
     return scopes;
 }
 
-
 export function findNodeWithIDInjection(program: Program, entries: TranspileObj[], editor: AstEditor, createdFiles: BscFile[]) {
     let scopes = getFilteredScopes(program);
     for (const scope of scopes) {
