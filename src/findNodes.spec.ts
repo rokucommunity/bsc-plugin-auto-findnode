@@ -230,7 +230,7 @@ describe('findnode', () => {
     });
 
     it('it works when provide an excludeFiles config', async () => {
-        program.options.autoFindNode = {
+        program.options['autoFindNode'] = {
             'excludeFiles': [
                 'components/noreplace/**/*',
                 "!components/noreplace/sub/**/*"
