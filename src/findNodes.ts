@@ -30,7 +30,7 @@ function getFilteredScopes(program: Program) {
 
     for (const filteredScope of program.getScopes().filter((scope) => isXmlScope(scope))) {
         if (!hasExclusions) {
-            scopes.push(filteredScope);
+            scopes.push(filteredScope as XmlScope);
             continue; // Skip further checks since it's explicitly included
         }
 
@@ -39,7 +39,7 @@ function getFilteredScopes(program: Program) {
         );
 
         if (isIncluded) {
-            scopes.push(filteredScope);
+            scopes.push(filteredScope as XmlScope);
             continue; // Skip further checks since it's explicitly included
         }
 
@@ -47,7 +47,7 @@ function getFilteredScopes(program: Program) {
             minimatch.match([filteredScope.name], pattern).length > 0
         );
         if (!isExcluded) {
-            scopes.push(filteredScope);
+            scopes.push(filteredScope as XmlScope);
         }
     }
 
