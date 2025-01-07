@@ -52,7 +52,7 @@ describe('findnode', () => {
         `);
     });
 
-    it.only('it works when no bs file is present', async () => {
+    it('it works when no bs file is present', async () => {
         program.setFile('components/ZombieKeyboard.xml', `
             <component name="ZombieKeyboard" extends="group">
                 <children>
