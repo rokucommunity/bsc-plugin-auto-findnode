@@ -1,6 +1,6 @@
-import type { AstEditor, FunctionStatement, BrsFile, Program, TranspileObj, BscFile, Statement, Range } from 'brighterscript';
-import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity, createVisitor, WalkMode, isDottedGetExpression, isVariableExpression, isLiteralString, util } from 'brighterscript';
-import type { SGNode } from 'brighterscript/dist/parser/SGTypes';
+import type { AstEditor, FunctionStatement, BrsFile, Program, BscFile, Range, TranspileObj } from 'brighterscript';
+import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity, createVisitor, WalkMode, isDottedGetExpression, isVariableExpression, isLiteralString, util, createSGAttribute } from 'brighterscript';
+import { SGScript, type SGNode } from 'brighterscript/dist/parser/SGTypes';
 
 function findChildrenWithIDs(children: Array<SGNode>): Map<string, Range> {
     let foundIDs = new Map<string, Range>();
@@ -27,39 +27,49 @@ export function findNodeWithIDInjection(program: Program, entries: TranspileObj[
                 //find an init function from all the scope's files
                 let initFunction: FunctionStatement | undefined;
 
-                let hasBrsFile = false;
+                let brsFileWithInit: BrsFile | undefined;
                 for (const file of scopeFiles) {
                     if (isBrsFile(file)) {
-                        hasBrsFile = true;
                         initFunction = file.parser.references.functionStatementLookup.get('init');
                         if (initFunction) {
+                            brsFileWithInit = file;
                             break;
                         }
                     }
                 }
 
-                if (!hasBrsFile) {
-                    createdFiles.push(program.setFile(xmlFile.pkgPath.replace('.xml', '.bs'), ''));
+                //if we don't have any brs files with an init, then we need to make a new BrsFile that we can add the `init()` function to
+                if (!brsFileWithInit) {
+                    brsFileWithInit = program.setFile<BrsFile>(xmlFile.pkgPath.replace('.xml', '.bs'), '');
+                    createdFiles.push(brsFileWithInit);
+
+                    //add this import to the xml file
+                    editor.arrayPush(xmlFile.parser.ast.component!.scripts, new SGScript({
+                        text: 'script'
+                    }, [
+                        createSGAttribute('uri', util.sanitizePkgPath(brsFileWithInit.pkgPath))
+                    ]));
                 }
 
                 //create an init function if it's missing
                 if (!initFunction) {
-                    const codeBehindFile = program.getFiles<BrsFile>(xmlFile.possibleCodebehindPkgPaths).find(x => !!x);
-                    initFunction = Parser.parse(`sub init()\nend sub`).statements[0] as FunctionStatement;
-                    if (codeBehindFile) {
-                        editor.arrayPush(codeBehindFile.parser.statements, initFunction);
+                    brsFileWithInit = program.getFiles<BrsFile>(xmlFile.possibleCodebehindPkgPaths).find(x => !!x);
+                    initFunction = Parser.parse(`sub init()\nend sub`).ast.statements[0] as FunctionStatement;
+                    if (brsFileWithInit) {
+                        editor.arrayPush(brsFileWithInit.parser.ast.statements, initFunction);
                     }
                 }
 
-                if (initFunction) {
+                if (brsFileWithInit && initFunction) {
                     //add m variables for every xml component that has an id
                     // eslint-disable-next-line max-statements-per-line, @typescript-eslint/brace-style
                     const assignments = Array.from(ids).map(([id, range]) => { return `m.${id} = m.top.findNode("${id}")`; }).join('\n');
-                    const statements = (Parser.parse(`
+                    const parser = Parser.parse(`
                         sub temp()
                             ${assignments}
                         end sub
-                    `).statements[0] as FunctionStatement).func.body.statements;
+                    `);
+                    const statements = (parser.ast.statements[0] as FunctionStatement).func.body.statements;
                     //add the assignments to the top of the init function
                     editor.arrayUnshift(initFunction.func.body.statements, ...statements);
                 }
