@@ -197,7 +197,8 @@ module.exports = {
         {
             files: ['*.spec.ts'],
             rules: {
-                '@typescript-eslint/no-unsafe-assignment': 'off'
+                '@typescript-eslint/no-unsafe-assignment': 'off',
+                '@typescript-eslint/no-unused-expressions': 'off'
             }
         }
     ]

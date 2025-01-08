@@ -1,9 +1,11 @@
-import { Program, util, standardizePath as s } from 'brighterscript';
+import type { XmlFile } from 'brighterscript';
+import { Program, util, standardizePath as s, AstEditor } from 'brighterscript';
 import { expect } from 'chai';
 import { Plugin } from './Plugin';
 import * as path from 'path';
 import undent from 'undent';
 import * as fsExtra from 'fs-extra';
+import { findChildrenWithIDs, findNodeWithIDInjection, validateNodeWithIDInjection } from './findNodes';
 const tempDir = s`${__dirname}/../.tmp`;
 const rootDir = s`${tempDir}/rootDir`;
 const stagingDir = s`${tempDir}/stagingDir`;
@@ -27,7 +29,73 @@ describe('findnode', () => {
         fsExtra.removeSync(tempDir);
     });
 
-    it('it works when a bs file is present', async () => {
+    describe('findChildrenWithIDs', () => {
+        it('does not crash on undefined children array', () => {
+            expect(
+                Object.entries(findChildrenWithIDs(undefined as any))
+            ).to.eql([]);
+        });
+
+        it('does not crash when child is missing id prop', () => {
+            expect(
+                Object.entries(findChildrenWithIDs([{} as any]))
+            ).to.eql([]);
+        });
+
+        it('does not crash when child is missing id prop', () => {
+            expect(
+                Object.entries(findChildrenWithIDs([{
+                    id: 1
+                } as any]))
+            ).to.eql([]);
+        });
+    });
+
+    describe('findNodeWithIDInjection', () => {
+        it('does not crash when is missing children', () => {
+            const file = program.setFile<XmlFile>('components/ZombieKeyboard.xml', `
+                <component name="ZombieKeyboard">
+                </component>
+            `);
+            delete file.parser.ast.component;
+
+            findNodeWithIDInjection(program, [], new AstEditor(), []);
+        });
+    });
+
+    describe('validateNodeWithIDInjection', () => {
+        it('does not crash when is missing children', () => {
+            const file = program.setFile<XmlFile>('components/ZombieKeyboard.xml', `
+                <component name="ZombieKeyboard">
+                </component>
+            `);
+            delete file.parser.ast.component;
+
+            validateNodeWithIDInjection(program);
+        });
+
+        it('does not crash on non-findnode calls', () => {
+            program.setFile<XmlFile>('components/ZombieKeyboard.xml', `
+                <component name="ZombieKeyboard">
+                    <script uri="ZombieKeyboard.bs" />
+                    <children>
+                        <label id="helloZombieText" />
+                    </children>
+                </component>
+            `);
+
+            program.setFile('components/ZombieKeyboard.bs', `
+                sub init()
+                    print "hello"
+                    m.top.isSameNode(m.top)
+                end sub
+            `);
+
+            validateNodeWithIDInjection(program);
+        });
+    });
+
+    it('adds assignments to existing init()', async () => {
         program.setFile('components/ZombieKeyboard.bs', `
             sub init()
                 print "hello"
@@ -52,7 +120,30 @@ describe('findnode', () => {
         `);
     });
 
-    it('it works when no bs file is present', async () => {
+    it('does not crash when component has no children', async () => {
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="group">
+            </component>
+        `);
+
+
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            undent(
+                fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString()
+            )
+        ).to.equal(undent`
+            <component name="ZombieKeyboard" extends="group">
+                <script type="text/brightscript" uri="pkg:/source/bslib.brs" />
+            </component>
+        `);
+    });
+
+    it('creates new file when no init() was found', async () => {
         program.setFile('components/ZombieKeyboard.xml', `
             <component name="ZombieKeyboard" extends="group">
                 <children>
@@ -67,7 +158,9 @@ describe('findnode', () => {
         await program.transpile([], stagingDir);
 
         expect(
-            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.brs`).toString()
+            undent(
+                fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
+            )
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -79,7 +172,7 @@ describe('findnode', () => {
             undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString())
         ).to.equal(undent`
             <component name="ZombieKeyboard" extends="group">
-                <script uri="pkg:/components/ZombieKeyboard.brs" type="text/brightscript" />
+                <script uri="pkg:/components/ZombieKeyboard-findnode.brs" type="text/brightscript" />
                 <script type="text/brightscript" uri="pkg:/source/bslib.brs" />
                 <children>
                     <label id="helloZombieText" />
@@ -88,12 +181,47 @@ describe('findnode', () => {
         `);
     });
 
-    it('it works when an empty file is present', async () => {
-        program.setFile('components/ZombieKeyboard.bs', `
+    it('it works when no init was found, but codebehind file doesbs file is present', async () => {
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="group">
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
         `);
 
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+        ).to.equal(undent`
+            sub init()
+                m.helloZombieText = m.top.findNode("helloZombieText")
+            end sub
+        `);
+
+        //make sure the import to this new file is present in the xml file
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString())
+        ).to.equal(undent`
+            <component name="ZombieKeyboard" extends="group">
+                <script uri="pkg:/components/ZombieKeyboard-findnode.brs" type="text/brightscript" />
+                <script type="text/brightscript" uri="pkg:/source/bslib.brs" />
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
+        `);
+    });
+
+    it('it still generates a new file when an empty codebehind file is present', async () => {
+        program.setFile('components/ZombieKeyboard.bs', ``);
+
         program.setFile('components/ZombieKeyboard.xml', `
-            <component name="ZombieKeyboard">
+            <component name="ZombieKeyboard" extends="Group">
                 <script uri="ZombieKeyboard.bs" />
                 <children>
                     <label id="helloZombieText" />
@@ -101,13 +229,78 @@ describe('findnode', () => {
             </component>
         `);
 
-        const result = await program.getTranspiledFileContents('components/ZombieKeyboard.bs');
-        expect(result.code).to.equal(undent`
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+        ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
             end sub
         `);
     });
+
+    it('it uses sequence number in generated filename when necessary', async () => {
+        program.setFile('components/ZombieKeyboard-findnode.brs', `'original contents`);
+
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="Group">
+                <script uri="pkg:/components/ZombieKeyboard-findnode.brs" />
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
+        `);
+
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+        ).to.equal(undent`'original contents`);
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString())
+        ).to.equal(undent`
+            sub init()
+                m.helloZombieText = m.top.findNode("helloZombieText")
+            end sub
+        `);
+    });
+
+    it('it uses sequence number in generated filename when necessary', async () => {
+        program.setFile('components/ZombieKeyboard-findnode.bs', `'original contents`);
+
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="Group">
+                <script uri="pkg:/components/ZombieKeyboard-findnode.bs" />
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
+        `);
+
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+        ).to.equal(undent`'original contents`);
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString())
+        ).to.equal(undent`
+            sub init()
+                m.helloZombieText = m.top.findNode("helloZombieText")
+            end sub
+        `);
+    });
+
 
     it('it works when a file is present with an empty init function', async () => {
         program.setFile('components/ZombieKeyboard.bs', `
@@ -227,7 +420,7 @@ describe('findnode', () => {
         }]);
     });
 
-    it('it works when you extend a component and founds nodes are declared within their correct component', async () => {
+    it('it works when you extend a component and found nodes are declared within their correct component', async () => {
         program.setFile('components/BaseKeyboard.xml', `
             <component name="BaseKeyboard" extends="group">
                 <children>
@@ -250,15 +443,23 @@ describe('findnode', () => {
             </component>
         `);
 
-        let result = await program.getTranspiledFileContents('components/BaseKeyboard.bs');
-        expect(result.code).to.equal(undent`
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/BaseKeyboard-findnode.brs`).toString())
+        ).to.equal(undent`
             sub init()
                 m.helloText = m.top.findNode("helloText")
             end sub
         `);
 
-        result = await program.getTranspiledFileContents('components/ZombieKeyboard.bs');
-        expect(result.code).to.equal(undent`
+
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.brs`).toString())
+        ).to.equal(undent`
             sub init()
                 m.helloText.text = "HELLO ZOMBIE"
             end sub

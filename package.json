@@ -51,6 +51,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/chai": "^4.3.11",
+    "@types/fs-extra": "^11.0.4",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.7",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
