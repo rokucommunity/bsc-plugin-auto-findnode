@@ -1,16 +1,30 @@
-import { Program, util } from 'brighterscript';
+import { Program, util, standardizePath as s } from 'brighterscript';
 import { expect } from 'chai';
 import { Plugin } from './Plugin';
 import * as path from 'path';
 import undent from 'undent';
+import * as fsExtra from 'fs-extra';
+const tempDir = s`${__dirname}/../.tmp`;
+const rootDir = s`${tempDir}/rootDir`;
+const stagingDir = s`${tempDir}/stagingDir`;
 
 describe('findnode', () => {
     let program: Program;
-    const rootDir = path.join(__dirname, '../.tmp');
 
     beforeEach(() => {
-        program = new Program({ rootDir: rootDir });
+        fsExtra.emptyDirSync(tempDir);
+        fsExtra.emptyDirSync(rootDir);
+        fsExtra.emptyDirSync(stagingDir);
+
+        program = new Program({
+            rootDir: rootDir,
+            stagingDir: stagingDir
+        });
         program.plugins.add(new Plugin());
+    });
+
+    afterEach(() => {
+        fsExtra.removeSync(tempDir);
     });
 
     it('it works when a bs file is present', async () => {
@@ -40,18 +54,37 @@ describe('findnode', () => {
 
     it('it works when no bs file is present', async () => {
         program.setFile('components/ZombieKeyboard.xml', `
-            <component name="ZombieKeyboard">
+            <component name="ZombieKeyboard" extends="group">
                 <children>
                     <label id="helloZombieText" />
                 </children>
             </component>
         `);
 
-        const result = await program.getTranspiledFileContents('components/ZombieKeyboard.bs');
-        expect(result.code).to.equal(undent`
+        //for this test, we need to actually run a full build because this file won't exist until after the build
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        await program.transpile([], stagingDir);
+
+        expect(
+            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.brs`).toString()
+        ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
             end sub
+        `);
+
+        //make sure the import to this new file is present in the xml file
+        expect(
+            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString())
+        ).to.equal(undent`
+            <component name="ZombieKeyboard" extends="group">
+                <script uri="pkg:/components/ZombieKeyboard.brs" type="text/brightscript" />
+                <script type="text/brightscript" uri="pkg:/source/bslib.brs" />
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
         `);
     });
 
@@ -61,6 +94,7 @@ describe('findnode', () => {
 
         program.setFile('components/ZombieKeyboard.xml', `
             <component name="ZombieKeyboard">
+                <script uri="ZombieKeyboard.bs" />
                 <children>
                     <label id="helloZombieText" />
                 </children>
@@ -75,7 +109,7 @@ describe('findnode', () => {
         `);
     });
 
-    it('it works when an file is present with an empty init function', async () => {
+    it('it works when a file is present with an empty init function', async () => {
         program.setFile('components/ZombieKeyboard.bs', `
             sub init()
             end sub
@@ -83,6 +117,7 @@ describe('findnode', () => {
 
         program.setFile('components/ZombieKeyboard.xml', `
             <component name="ZombieKeyboard">
+                <script uri="ZombieKeyboard.bs" />
                 <children>
                     <label id="helloZombieText" />
                 </children>
@@ -194,7 +229,7 @@ describe('findnode', () => {
 
     it('it works when you extend a component and founds nodes are declared within their correct component', async () => {
         program.setFile('components/BaseKeyboard.xml', `
-            <component name="BaseKeyboard">
+            <component name="BaseKeyboard" extends="group">
                 <children>
                     <label id="helloText" />
                 </children>
@@ -209,6 +244,7 @@ describe('findnode', () => {
 
         program.setFile('components/ZombieKeyboard.xml', `
             <component name="ZombieKeyboard" extends="BaseKeyboard">
+                <script uri="ZombieKeyboard.bs" />
                 <children>
                 </children>
             </component>
