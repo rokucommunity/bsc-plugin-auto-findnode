@@ -1,17 +1,15 @@
-import type { AstEditor, FunctionStatement, BrsFile, Program, BscFile, Range, TranspileObj } from 'brighterscript';
+import type { AstEditor, FunctionStatement, BrsFile, Program, BscFile, Range, TranspileObj, Scope, XmlFile } from 'brighterscript';
 import { isBrsFile, Parser, isXmlScope, DiagnosticSeverity, createVisitor, WalkMode, isDottedGetExpression, isVariableExpression, isLiteralString, util, createSGAttribute } from 'brighterscript';
 import { SGScript, type SGNode } from 'brighterscript/dist/parser/SGTypes';
 
-function findChildrenWithIDs(children: Array<SGNode>): Map<string, Range> {
+export function findChildrenWithIDs(children: Array<SGNode>): Map<string, Range> {
     let foundIDs = new Map<string, Range>();
-    if (children) {
-        children.forEach(child => {
-            if (child.id) {
-                foundIDs.set(child.id, child.attributes.find(x => x.key.text === 'id')?.value?.range ?? util.createRange(0, 0, 0, 100));
-            }
-            const subChildren = findChildrenWithIDs(child.children);
-            foundIDs = new Map([...foundIDs, ...subChildren]);
-        });
+    for (const child of children ?? []) {
+        if (child.id) {
+            foundIDs.set(child.id, child.attributes?.find?.(x => x.key.text === 'id')?.value?.range ?? util.createRange(0, 0, 0, 100));
+        }
+        const subChildren = findChildrenWithIDs(child.children);
+        foundIDs = new Map([...foundIDs, ...subChildren]);
     }
     return foundIDs;
 }
@@ -21,58 +19,48 @@ export function findNodeWithIDInjection(program: Program, entries: TranspileObj[
         if (isXmlScope(scope)) {
             const xmlFile = scope.xmlFile;
             const ids = findChildrenWithIDs(xmlFile.parser.ast.component?.children?.children ?? []);
-            if (ids.size > 0) {
-                const scopeFiles: BscFile[] = scope.getOwnFiles();
 
-                //find an init function from all the scope's files
-                let initFunction: FunctionStatement | undefined;
+            //skip this xml file if there are no nodes with IDs in it
+            if (ids.size === 0) {
+                continue;
+            }
 
-                let brsFileWithInit: BrsFile | undefined;
-                for (const file of scopeFiles) {
-                    if (isBrsFile(file)) {
-                        initFunction = file.parser.references.functionStatementLookup.get('init');
-                        if (initFunction) {
-                            brsFileWithInit = file;
-                            break;
-                        }
-                    }
-                }
+            //build the list of assignments
+            const assignments = Array.from(ids).map(([id, range]) => {
+                return `m.${id} = m.top.findNode("${id}")`;
+            }).join('\n');
 
-                //if we don't have any brs files with an init, then we need to make a new BrsFile that we can add the `init()` function to
-                if (!brsFileWithInit) {
-                    brsFileWithInit = program.setFile<BrsFile>(xmlFile.pkgPath.replace('.xml', '.bs'), '');
-                    createdFiles.push(brsFileWithInit);
+            const initFunctionText = `
+                sub init()
+                    ${assignments}
+                end sub
+            `;
 
-                    //add this import to the xml file
-                    editor.arrayPush(xmlFile.parser.ast.component!.scripts, new SGScript({
-                        text: 'script'
-                    }, [
-                        createSGAttribute('uri', util.sanitizePkgPath(brsFileWithInit.pkgPath))
-                    ]));
-                }
+            const initFunctionInfo = findInitFunction(scope);
 
-                //create an init function if it's missing
-                if (!initFunction) {
-                    brsFileWithInit = program.getFiles<BrsFile>(xmlFile.possibleCodebehindPkgPaths).find(x => !!x);
-                    initFunction = Parser.parse(`sub init()\nend sub`).ast.statements[0] as FunctionStatement;
-                    if (brsFileWithInit) {
-                        editor.arrayPush(brsFileWithInit.parser.ast.statements, initFunction);
-                    }
-                }
+            //if we found an init function, inject the assignments
+            if (initFunctionInfo) {
+                //add the assignments to the top of the init function
+                editor.arrayUnshift(
+                    initFunctionInfo.initFunction.func.body.statements,
+                    ...(Parser.parse(initFunctionText).ast.statements[0] as FunctionStatement).func.body.statements
+                );
 
-                if (brsFileWithInit && initFunction) {
-                    //add m variables for every xml component that has an id
-                    // eslint-disable-next-line max-statements-per-line, @typescript-eslint/brace-style
-                    const assignments = Array.from(ids).map(([id, range]) => { return `m.${id} = m.top.findNode("${id}")`; }).join('\n');
-                    const parser = Parser.parse(`
-                        sub temp()
-                            ${assignments}
-                        end sub
-                    `);
-                    const statements = (parser.ast.statements[0] as FunctionStatement).func.body.statements;
-                    //add the assignments to the top of the init function
-                    editor.arrayUnshift(initFunction.func.body.statements, ...statements);
-                }
+                //we don't have an init function, create a new file and insert an empty init function into it
+            } else {
+                //get a unique filename for the new file
+                const pkgPath = getUniqueFilename(xmlFile, program);
+
+                //create and add the new file to the program
+                const brsFileWithInit = program.setFile<BrsFile>(pkgPath, initFunctionText);
+                createdFiles.push(brsFileWithInit);
+
+                //import this file into the current xml file
+                editor.arrayPush(xmlFile.parser.ast.component!.scripts, new SGScript({
+                    text: 'script'
+                }, [
+                    createSGAttribute('uri', util.sanitizePkgPath(brsFileWithInit.pkgPath))
+                ]));
             }
         }
     }
@@ -84,20 +72,7 @@ export function validateNodeWithIDInjection(program: Program) {
             const xmlFile = scope.xmlFile;
             const ids = findChildrenWithIDs(xmlFile.parser.ast.component?.children?.children ?? []);
             if (ids.size > 0) {
-                const scopeFiles: BscFile[] = scope.getOwnFiles();
-
-                let initFunction: FunctionStatement | undefined;
-                let initFunctionFile: BscFile | undefined;
-
-                for (const file of scopeFiles) {
-                    if (isBrsFile(file)) {
-                        initFunction = file.parser.references.functionStatementLookup.get('init');
-                        if (initFunction) {
-                            initFunctionFile = file;
-                            break;
-                        }
-                    }
-                }
+                const { initFunction, file: initFunctionFile } = findInitFunction(scope) ?? {};
 
                 if (initFunction && initFunctionFile) {
                     initFunction.func.body.walk(createVisitor({
@@ -135,4 +110,38 @@ export function validateNodeWithIDInjection(program: Program) {
             }
         }
     }
+}
+
+/**
+ * Find the first function called `init()` across all files in a scope
+ */
+function findInitFunction(scope: Scope): { file: BscFile; initFunction: FunctionStatement } | undefined {
+    for (const file of scope.getOwnFiles()) {
+        if (isBrsFile(file)) {
+            const initFunction = file.parser.references.functionStatementLookup.get('init');
+            if (initFunction) {
+                return {
+                    initFunction: initFunction,
+                    file: file
+                };
+            }
+        }
+    }
+}
+
+/**
+ * Get a pkgPath for a new brs file that will sit next to the given xml file. This is deterministic,
+ * so if the file already exists, we'll append the next available number number to the end of the filename to make it unique.
+ * @param file
+ * @param program
+ */
+function getUniqueFilename(file: XmlFile, program: Program) {
+    let pkgPath = file.pkgPath.replace('.xml', '-findnode');
+    let sequence = 2;
+
+    //try up to 10 times to find a unique filename within the program
+    while (sequence < 10 && program.hasFile(`${pkgPath}.brs`) || program.hasFile(`${pkgPath}.bs`)) {
+        pkgPath = file.pkgPath.replace('.xml', `-findnode-${sequence++}`);
+    }
+    return `${pkgPath}.brs`;
 }
