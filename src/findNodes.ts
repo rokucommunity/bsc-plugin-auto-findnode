@@ -27,14 +27,10 @@ export function findNodeWithIDInjection(program: Program, entries: TranspileObj[
 
             //build the list of assignments
             const assignments = Array.from(ids).map(([id, range]) => {
-                return `m.${id} = m.top.findNode("${id}")`;
+                return `    m.${id} = m.top.findNode("${id}")`;
             }).join('\n');
 
-            const initFunctionText = `
-                sub init()
-                    ${assignments}
-                end sub
-            `;
+            const initFunctionText = `sub init()\n${assignments}\nend sub`;
 
             const initFunctionInfo = findInitFunction(scope);
 
@@ -132,8 +128,8 @@ function findInitFunction(scope: Scope): { file: BscFile; initFunction: Function
 /**
  * Get a pkgPath for a new brs file that will sit next to the given xml file. This is deterministic,
  * so if the file already exists, we'll append the next available number number to the end of the filename to make it unique.
- * @param file
- * @param program
+ * @param file the xml file that we want to make a new brs file for
+ * @param program the bsc program (used for file name collision detection)
  */
 function getUniqueFilename(file: XmlFile, program: Program) {
     let pkgPath = file.pkgPath.replace('.xml', '-findnode');
