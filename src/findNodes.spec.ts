@@ -158,14 +158,8 @@ describe('findnode', () => {
         await program.transpile([], stagingDir);
 
         expect(
-            undent(
-                fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
-            )
-        ).to.equal(undent`
-            sub init()
-                m.helloZombieText = m.top.findNode("helloZombieText")
-            end sub
-        `);
+            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
+        ).to.equal(`sub init()\n    m.helloZombieText = m.top.findNode("helloZombieText")\nend sub`);
 
         //make sure the import to this new file is present in the xml file
         expect(
@@ -181,7 +175,7 @@ describe('findnode', () => {
         `);
     });
 
-    it('it works when no init was found, but codebehind file doesbs file is present', async () => {
+    it('it works when no init was found', async () => {
         program.setFile('components/ZombieKeyboard.xml', `
             <component name="ZombieKeyboard" extends="group">
                 <children>
@@ -235,7 +229,7 @@ describe('findnode', () => {
         await program.transpile([], stagingDir);
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -261,10 +255,11 @@ describe('findnode', () => {
         await program.transpile([], stagingDir);
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
         ).to.equal(undent`'original contents`);
+
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString())
+            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString()
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -290,7 +285,7 @@ describe('findnode', () => {
         await program.transpile([], stagingDir);
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
         ).to.equal(undent`'original contents`);
         expect(
             undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString())
@@ -418,6 +413,29 @@ describe('findnode', () => {
                 )
             }]
         }]);
+    });
+
+
+    it('it does not warn for findnode IDs NOT in the current xml file', () => {
+        program.setFile('components/ZombieKeyboard.bs', `
+            sub init()
+                m.helloZombieText2 = m.top.findNode("notInMyXml")
+            end sub
+        `);
+
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="Group">
+                <script uri="ZombieKeyboard.bs" />
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
+        `);
+
+        program.validate();
+        expect(
+            program.getDiagnostics().map(x => ({ message: x.message, range: x.range, relatedInformation: x.relatedInformation }))
+        ).to.eql([]);
     });
 
     it('it works when you extend a component and found nodes are declared within their correct component', async () => {
