@@ -10,7 +10,7 @@
     "test:nocover": "mocha",
     "test": "nyc mocha",
     "publish-coverage": "nyc report --reporter=text-lcov | coveralls",
-    "package": "npm ci && npm run build && npm pack"
+    "package": "npm run build && npm pack"
   },
   "mocha": {
     "spec": "src/**/*.spec.ts",
