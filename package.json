@@ -57,7 +57,7 @@
     "@types/node": "^20.10.7",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
-    "brighterscript": "^0.65.16",
+    "brighterscript": "^0.69.5",
     "chai": "^4.2.0",
     "coveralls-next": "^4.2.0",
     "eslint": "^8.20.0",
