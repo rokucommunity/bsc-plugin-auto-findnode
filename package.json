@@ -73,6 +73,6 @@
     "undent": "^0.1.0"
   },
   "dependencies": {
-    "brighterscript": "https://github.com/rokucommunity/brighterscript/releases/download/v0.0.0-packages/brighterscript-1.0.0-alpha.45-release-1-0-0.20250417183314.tgz"
+    "brighterscript": "^1.0.0-alpha.46"
   }
 }
