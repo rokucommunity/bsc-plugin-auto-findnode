@@ -74,6 +74,6 @@
     "undent": "^0.1.0"
   },
   "dependencies": {
-    "brighterscript": "^1.0.0-alpha.46"
+    "brighterscript": "^1.0.0-alpha.45"
   }
 }
