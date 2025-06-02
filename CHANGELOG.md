@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.0-alpha.47](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.46...v1.0.0-alpha.47) - 2025-06-02
+### Changed
+ - upgrade to [brighterscript@1.0.0-alpha.47](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha47---2025-05-22). Notable changes since 1.0.0-alpha.46:
+     - Better diagnostic null location handling ([#1491](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/1491))
+
+
+
 ## [1.0.0-alpha.46](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.45...v1.0.0-alpha.46) - 2025-06-02
 ### Changed
  - Add bsc v1 as prod dep ([#15](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/15))
