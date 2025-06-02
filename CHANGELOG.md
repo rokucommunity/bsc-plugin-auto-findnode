@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.0-alpha.46](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.45...v1.0.0-alpha.46) - 2025-06-02
+### Changed
+ - Add bsc v1 as prod dep ([#15](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/15))
+ - upgrade to [brighterscript@1.0.0-alpha.46](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha46---2025-04-24). Notable changes since 1.0.0-alpha.45:
+     - Import `performance` from `perf_hooks` to work on node <16 ([brighterscript#1462](https://github.com/rokucommunity/brighterscript/pull/1462))
+
+
+
 ## [1.0.0-alpha.45](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/v1.0.0-alpha.41...v1.0.0-alpha.45) - 2025-04-04
 ### Changed
  - upgrade to [brighterscript@1.0.0-alpha.45](https://github.com/rokucommunity/brighterscript/blob/release-1.0.0/CHANGELOG.md#100-alpha45---2025-04-04)
