@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.1.4](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/0.1.3...v0.1.4) - 2025-06-03
+### Added
+ - added [brighterscript@0.69.10](https://github.com/rokucommunity/brighterscript)
+### Changed
+ - Shared CI Support Prerelease ([#18](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/18))
+
+
+
 ## [0.1.3](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/0.1.2...v0.1.3) - 2025-04-24
 ### Changed
  - Add `brighterscript` as dependency ([#14](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/14))
