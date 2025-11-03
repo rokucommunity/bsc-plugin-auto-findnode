@@ -24,6 +24,7 @@
       "ts"
     ]
   },
+  "repository": "https://github.com/rokucommunity/brs",
   "nyc": {
     "include": [
       "src/**/*.ts",
