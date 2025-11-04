@@ -24,6 +24,7 @@
       "ts"
     ]
   },
+  "repository": "https://github.com/rokucommunity/bsc-plugin-auto-findnode",
   "nyc": {
     "include": [
       "src/**/*.ts",
