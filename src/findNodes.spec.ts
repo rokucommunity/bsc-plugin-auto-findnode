@@ -8,7 +8,7 @@ import * as fsExtra from 'fs-extra';
 import { ensureEditor, findChildrenWithIDs, findNodeWithIDInjection, validateNodeWithIDInjection } from './findNodes';
 const tempDir = s`${__dirname}/../.tmp`;
 const rootDir = s`${tempDir}/rootDir`;
-const stagingDir = s`${tempDir}/stagingDir`;
+const outDir = s`${tempDir}/outDir`;
 
 describe('findnode', () => {
     let program: Program;
@@ -16,11 +16,11 @@ describe('findnode', () => {
     beforeEach(() => {
         fsExtra.emptyDirSync(tempDir);
         fsExtra.emptyDirSync(rootDir);
-        fsExtra.emptyDirSync(stagingDir);
+        fsExtra.emptyDirSync(outDir);
 
         program = new Program({
             rootDir: rootDir,
-            stagingDir: stagingDir
+            outDir: outDir
         });
         program.plugins.add(new Plugin());
     });
@@ -165,12 +165,12 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
             undent(
-                fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString()
+                fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard.xml`).toString()
             )
         ).to.equal(undent`
             <component name="ZombieKeyboard" extends="group">
@@ -192,16 +192,16 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
-            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
+            fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode.brs`).toString()
         ).to.equal(`sub init()\n    m.helloZombieText = m.top.findNode("helloZombieText")\nend sub`);
 
         //make sure the import to this new file is present in the xml file
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard.xml`).toString())
         ).to.equal(undent`
             <component name="ZombieKeyboard" extends="group">
                 <children>
@@ -226,11 +226,11 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode.brs`).toString())
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -239,7 +239,7 @@ describe('findnode', () => {
 
         //make sure the import to this new file is present in the xml file
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.xml`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard.xml`).toString())
         ).to.equal(undent`
             <component name="ZombieKeyboard" extends="group">
                 <children>
@@ -267,11 +267,11 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
-            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
+            fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode.brs`).toString()
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -295,15 +295,15 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
-            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString()
+            fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode.brs`).toString()
         ).to.equal(undent`'original contents`);
 
         expect(
-            fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString()
+            fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode-2.brs`).toString()
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -327,14 +327,14 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode.brs`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode.brs`).toString())
         ).to.equal(undent`'original contents`);
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard-findnode-2.brs`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard-findnode-2.brs`).toString())
         ).to.equal(undent`
             sub init()
                 m.helloZombieText = m.top.findNode("helloZombieText")
@@ -511,11 +511,11 @@ describe('findnode', () => {
         program.validate();
         expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
         await program.build({
-            stagingDir: stagingDir
+            outDir: outDir
         });
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/BaseKeyboard-findnode.brs`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/BaseKeyboard-findnode.brs`).toString())
         ).to.equal(undent`
             sub init()
                 m.helloText = m.top.findNode("helloText")
@@ -523,7 +523,7 @@ describe('findnode', () => {
         `);
 
         expect(
-            undent(fsExtra.readFileSync(s`${stagingDir}/components/ZombieKeyboard.brs`).toString())
+            undent(fsExtra.readFileSync(s`${outDir}/components/ZombieKeyboard.brs`).toString())
         ).to.equal(undent`
             sub init()
                 m.helloText.text = "HELLO ZOMBIE"
