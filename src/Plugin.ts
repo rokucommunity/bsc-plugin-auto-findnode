@@ -1,4 +1,4 @@
-import type { BscFile, CompilerPlugin, BeforeProgramValidateEvent, BeforeBuildProgramEvent, AfterBuildProgramEvent } from 'brighterscript';
+import type { BscFile, CompilerPlugin, BeforeValidateProgramEvent, BeforeBuildProgramEvent, AfterBuildProgramEvent } from 'brighterscript';
 import { findNodeWithIDInjection, validateNodeWithIDInjection } from './findNodes';
 
 export class Plugin implements CompilerPlugin {
@@ -6,7 +6,7 @@ export class Plugin implements CompilerPlugin {
 
     private createdFiles = [];
 
-    beforeProgramValidate(event: BeforeProgramValidateEvent) {
+    beforeValidateProgram(event: BeforeValidateProgramEvent) {
         validateNodeWithIDInjection(event.program);
     }
 
