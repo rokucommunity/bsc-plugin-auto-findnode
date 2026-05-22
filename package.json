@@ -10,7 +10,7 @@
     "lint": "eslint \"src/**\"",
     "test:nocover": "mocha",
     "test": "nyc mocha",
-    "audit": "npm audit",
+    "audit": "npm audit || audit-ci --config ./audit-ci.jsonc",
     "package": "npm run build && npm pack"
   },
   "mocha": {
@@ -63,6 +63,7 @@
     "@types/node": "^20.10.7",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
+    "audit-ci": "^7.1.0",
     "brighterscript": "^0.70.4",
     "chai": "^4.2.0",
     "eslint": "^8.20.0",
