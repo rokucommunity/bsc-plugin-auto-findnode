@@ -10,6 +10,13 @@
                 "active": true,
                 "notes": "`uuid` <11.1.1 (via `postman-request` and dev-only `nyc>istanbul-lib-processinfo`): vulnerable code path is `v3()`/`v5()`/`v6()` when a caller-provided buffer is passed. All consumers in this dep graph call only `v4()` (no buffer arg), so the vulnerable path is unreachable."
             }
+        },
+        {
+            "GHSA-fjxv-7rqg-78g4": {
+                // Added: 2026-05-28
+                "active": true,
+                "notes": "`form-data` <2.5.4 (via `postman-request` -> `roku-deploy`, dev-only): uses `Math.random()` to choose the multipart boundary. Exploit requires an attacker who can both observe the outgoing request and inject attacker-controlled content into the body to break out of the boundary. `roku-deploy` only sends sideload requests to a Roku device on the local network during development, so this path is not reachable in any deployed code."
+            }
         }
     ]
 }
