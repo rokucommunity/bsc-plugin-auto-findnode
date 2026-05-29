@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.0-alpha.51](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.50...v1.0.0-alpha.51) - 2026-05-29
+### Changed
+ - Upgrade to brighterscript v1.0.0-alpha.51 ([#36](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/36))
+ - Merge master into v1 ([#35](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/35))
+ - upgrade to [brighterscript@1.0.0-alpha.51](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha51---2026-05-20). Notable changes since 1.0.0-alpha.50:
+     - Token leadingTrivia handling and reduce memory retention in long-lived compiler/LSP caches ([#1705](https://github.com/rokucommunity/brighterscript/pull/1705))
+     - Fix for each validation error ([#1646](https://github.com/rokucommunity/brighterscript/pull/1646))
+     - Allow typed functions in type expressions ([#1620](https://github.com/rokucommunity/brighterscript/pull/1620))
+     - Fixes issue with forEach iterating over a union of iterables ([#1629](https://github.com/rokucommunity/brighterscript/pull/1629))
+     - Allow typecast statement on all variables ([#1622](https://github.com/rokucommunity/brighterscript/pull/1622))
+
+
+
 ## [1.0.0-alpha.50](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.49...v1.0.0-alpha.50) - 2026-01-28
 ### Changed
  - upgrade to [brighterscript@1.0.0-alpha.50](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha50---2026-01-28). Notable changes since 1.0.0-alpha.49:
