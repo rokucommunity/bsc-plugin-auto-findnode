@@ -499,7 +499,7 @@ describe('findnode', () => {
             } finally {
                 program.logger.warn = originalWarn;
             }
-            const offending = warnings.filter(w => /no longer supported/.test(w));
+            const offending = warnings.filter(w => w.includes('no longer supported'));
             expect(offending).to.eql([]);
         });
     });
@@ -624,7 +624,7 @@ describe('findnode', () => {
             `);
 
             program.validate();
-            const unnecessary = program.getDiagnostics().filter(x => /Unnecessary call/.test(x.message));
+            const unnecessary = program.getDiagnostics().filter(x => x.message.includes('Unnecessary call'));
             expect(unnecessary).to.eql([]);
         });
     });
