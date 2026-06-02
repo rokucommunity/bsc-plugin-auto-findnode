@@ -1,4 +1,4 @@
-import type { AstEditor, BeforeFileValidateEvent, BscFile, CompilerPlugin, PluginHandler, Program, TranspileObj } from 'brighterscript';
+import type { BscFile, CompilerPlugin, BeforeValidateProgramEvent, BeforeBuildProgramEvent, AfterBuildProgramEvent } from 'brighterscript';
 import { findNodeWithIDInjection, validateNodeWithIDInjection } from './findNodes';
 
 export class Plugin implements CompilerPlugin {
@@ -6,18 +6,18 @@ export class Plugin implements CompilerPlugin {
 
     private createdFiles = [];
 
-    beforeProgramValidate(program: Program) {
-        validateNodeWithIDInjection(program);
+    beforeValidateProgram(event: BeforeValidateProgramEvent) {
+        validateNodeWithIDInjection(event.program);
     }
 
-    beforeProgramTranspile(program: Program, entries: TranspileObj[], editor: AstEditor) {
+    beforeBuildProgram(event: BeforeBuildProgramEvent) {
         this.createdFiles = [];
-        findNodeWithIDInjection(program, entries, editor, this.createdFiles);
+        findNodeWithIDInjection(event, this.createdFiles);
     }
 
-    afterProgramTranspile(program: Program) {
+    afterBuildProgram(event: AfterBuildProgramEvent) {
         for (const file of this.createdFiles as BscFile[]) {
-            program.removeFile(file.pkgPath);
+            event.program.removeFile(file.pkgPath!);
         }
     }
 }
