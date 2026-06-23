@@ -10,7 +10,7 @@
     "lint": "eslint \"src/**\"",
     "test:nocover": "mocha",
     "test": "nyc mocha",
-    "audit": "npm audit || audit-ci --config ./audit-ci.jsonc",
+    "audit": "npm audit --audit-level=high || audit-ci --config ./audit-ci.jsonc",
     "package": "npm run build && npm pack"
   },
   "mocha": {
