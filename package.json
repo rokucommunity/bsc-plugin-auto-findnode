@@ -1,6 +1,6 @@
 {
   "name": "bsc-plugin-auto-findnode",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A BrighterScript plugin that auto-injects `m.top.findNode()` calls in your component `init()` functions",
   "main": "dist/index.js",
   "scripts": {
@@ -70,7 +70,7 @@
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
     "audit-ci": "^7.1.0",
-    "brighterscript": "^0.72.5",
+    "brighterscript": "^0.73.1",
     "chai": "^4.2.0",
     "eslint": "^8.20.0",
     "eslint-import-resolver-typescript": "^3.6.1",
