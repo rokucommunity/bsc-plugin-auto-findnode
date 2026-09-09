@@ -54,13 +54,15 @@
   "author": "",
   "license": "ISC",
   "overrides": {
-    "serialize-javascript": "^7.0.5",
+    "serialize-javascript": "^7",
     "brace-expansion@^1": "^1.1.18",
-    "brace-expansion@^2": "^2.1.4",
+    "brace-expansion@^2": "^2",
     "js-yaml@^3": "^3.15.2",
-    "js-yaml@^4": "^4.3.2",
-    "ip-address": "^10.3.1",
-    "browserslist": "^4.28.8"
+    "js-yaml@^4": "^4",
+    "browserslist": "^4.28.8",
+    "@babel/core": "^7.29.7",
+    "istanbul-lib-processinfo": "^3.0.1",
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
