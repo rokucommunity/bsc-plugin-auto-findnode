@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.1.8](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/0.1.7...v0.1.8) - 2026-09-09
+### Changed
+ - Security enhancements ([#44](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/44))
+ - upgrade to [brighterscript@0.73.3](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#0733---2026-09-09). Notable changes since 0.73.1:
+     - Security enhancements ([#1796](https://github.com/rokucommunity/brighterscript/pull/1796))
+
+
+
 ## [0.1.7](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/0.1.6...v0.1.7) - 2026-09-02
 ### Changed
  - Security enhancements ([#40](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/40), [#41](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/41), [#42](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/42))
