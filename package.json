@@ -13,18 +13,6 @@
     "audit": "npm audit --audit-level=high || audit-ci --config ./audit-ci.jsonc",
     "package": "npm run build && npm pack"
   },
-  "mocha": {
-    "spec": "src/**/*.spec.ts",
-    "require": [
-      "source-map-support/register",
-      "ts-node/register"
-    ],
-    "fullTrace": true,
-    "timeout": 2000,
-    "watchExtensions": [
-      "ts"
-    ]
-  },
   "repository": "https://github.com/rokucommunity/bsc-plugin-auto-findnode",
   "nyc": {
     "include": [
