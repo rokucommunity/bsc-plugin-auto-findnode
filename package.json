@@ -56,8 +56,10 @@
   "overrides": {
     "serialize-javascript": "^7.0.5",
     "js-yaml": "^4.3.2",
-    "brace-expansion": "^1.1.18",
-    "browserslist": "^4.28.7"
+    "brace-expansion": "^1.1.21",
+    "browserslist": "^4.28.7",
+    "@babel/core": "^7.29.7",
+    "istanbul-lib-processinfo": "^3.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
