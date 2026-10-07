@@ -79,7 +79,7 @@ export function findNodeWithIDInjection(event: BeforeBuildProgramEvent, createdF
                 event.files.push(brsFileWithInit);
 
                 //import this file into the current xml file
-                ensureEditor(brsFileWithInit).arrayPush(xmlFile.parser.ast.componentElement!.elements, createSGScript({
+                ensureEditor(xmlFile).arrayPush(xmlFile.parser.ast.componentElement!.elements, createSGScript({
                     uri: util.sanitizePkgPath(brsFileWithInit.pkgPath)
                 }));
             }

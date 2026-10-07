@@ -782,4 +782,26 @@ describe('findnode', () => {
             end sub
         `);
     });
+
+    it('does not accumulate the injected script element across repeated builds', async () => {
+        const xmlFile = program.setFile<XmlFile>('components/Widget.xml', `
+            <component name="Widget" extends="group">
+                <children>
+                    <Label id="title" />
+                </children>
+            </component>
+        `);
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+        const originalElements = [...xmlFile.parser.ast.componentElement!.elements];
+
+        for (let buildIndex = 0; buildIndex < 3; buildIndex++) {
+            await program.build({
+                outDir: outDir
+            });
+            const builtXml = fsExtra.readFileSync(s`${outDir}/components/Widget.xml`).toString();
+            expect(builtXml.match(/Widget-findnode\.brs/g)).to.have.lengthOf(1);
+            expect(xmlFile.parser.ast.componentElement!.elements).to.eql(originalElements);
+        }
+    });
 });
