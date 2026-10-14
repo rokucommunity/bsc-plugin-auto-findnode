@@ -7,9 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.0-alpha.56](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.55...v1.0.0-alpha.56) - 2026-10-14
+### Changed
+ - upgrade to [brighterscript@1.0.0-alpha.56](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha56---2026-09-27). Notable changes since 1.0.0-alpha.55:
+
+
+
+## [1.0.0-alpha.55](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.54...v1.0.0-alpha.55) - 2026-10-14
+### Changed
+ - upgrade to [brighterscript@1.0.0-alpha.55](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha55---2026-09-18). Notable changes since 1.0.0-alpha.54:
+
+
+
 ## [1.0.0-alpha.54](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.53...v1.0.0-alpha.54) - 2026-10-14
 ### Changed
  - Security enhancements ([#52](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/52), [#55](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/55))
+ - upgrade to [brighterscript@1.0.0-alpha.54](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha54---2026-09-11). Notable changes since 1.0.0-alpha.53:
 ### Fixed
  - Fix duplicate findnode script tags on rebuild ([#58](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/58))
 
