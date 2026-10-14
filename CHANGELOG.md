@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.0-alpha.57](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.56...v1.0.0-alpha.57) - 2026-10-14
+### Changed
+ - upgrade to [brighterscript@1.0.0-alpha.57](https://github.com/rokucommunity/brighterscript/blob/v1.0.0-alpha.57/CHANGELOG.md#100-alpha57---2026-10-13). Notable changes since 1.0.0-alpha.56:
+     - Security enhancements ([#1855](https://github.com/rokucommunity/brighterscript/pull/1855), [#1874](https://github.com/rokucommunity/brighterscript/pull/1874), [#1883](https://github.com/rokucommunity/brighterscript/pull/1883), [#1891](https://github.com/rokucommunity/brighterscript/pull/1891))
+
+
+
 ## [1.0.0-alpha.56](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.55...v1.0.0-alpha.56) - 2026-10-14
 ### Changed
  - upgrade to [brighterscript@1.0.0-alpha.56](https://github.com/rokucommunity/brighterscript/blob/master/CHANGELOG.md#100-alpha56---2026-09-27). Notable changes since 1.0.0-alpha.55:
