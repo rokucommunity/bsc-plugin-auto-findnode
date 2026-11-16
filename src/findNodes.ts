@@ -111,7 +111,7 @@ export function validateNodeWithIDInjection(program: Program) {
                                 let warningLocation = ids.get(id);
                                 if (warningLocation !== undefined) {
                                     program.diagnostics.register({
-                                        location: expression.location!,
+                                        location: expression,
                                         severity: DiagnosticSeverity.Warning,
                                         message: `Unnecessary call to 'm.top.findNode("${id}")'`,
                                         relatedInformation: [{
