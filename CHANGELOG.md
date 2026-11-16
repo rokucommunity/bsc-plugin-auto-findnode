@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.0-alpha.58](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.57...v1.0.0-alpha.58) - 2026-11-16
+### Changed
+ - Upgrade to brighterscript@1.0.0-alpha.58 ([#65](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/65))
+ - Security enhancements ([#64](https://github.com/rokucommunity/bsc-plugin-auto-findnode/pull/64))
+ - upgrade to [brighterscript@1.0.0-alpha.58](https://github.com/rokucommunity/brighterscript/blob/v1.0.0-alpha.58/CHANGELOG.md#100-alpha58---2026-11-16). Notable changes since 1.0.0-alpha.57:
+     - Refactor Location tracking to be an offset-based Locatable model ([#1845](https://github.com/rokucommunity/brighterscript/pull/1845))
+     - Run BscPlugin's work in after* hooks so plugins always run first ([#1946](https://github.com/rokucommunity/brighterscript/pull/1946))
+
+
+
 ## [1.0.0-alpha.57](https://github.com/rokucommunity/bsc-plugin-auto-findnode/compare/1.0.0-alpha.56...v1.0.0-alpha.57) - 2026-10-14
 ### Changed
  - upgrade to [brighterscript@1.0.0-alpha.57](https://github.com/rokucommunity/brighterscript/blob/v1.0.0-alpha.57/CHANGELOG.md#100-alpha57---2026-10-13). Notable changes since 1.0.0-alpha.56:
