@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "preversion": "npm run build && npm run lint && npm run test",
-    "clean": "node -e \"require('fs').rmSync('out', {recursive: true, force: true})\"",
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
     "build": "npm run clean && tsc",
     "lint": "eslint \"src/**\"",
     "test:nocover": "mocha",
@@ -83,7 +83,7 @@
     "undent": "^1.0.1"
   },
   "dependencies": {
-    "brighterscript": "^1.0.0-alpha.57",
+    "brighterscript": "^1.0.0-alpha.58",
     "fs-extra": "^11.2.0"
   }
 }

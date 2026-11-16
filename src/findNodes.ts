@@ -51,7 +51,7 @@ export function findNodeWithIDInjection(event: BeforeBuildProgramEvent, createdF
             }
 
             //build the list of assignments
-            const assignments = Array.from(ids).map(([id, range]) => {
+            const assignments = Array.from(ids.keys()).map((id) => {
                 return `    m.${id} = m.top.findNode("${id}")`;
             }).join('\n');
 
@@ -87,7 +87,14 @@ export function findNodeWithIDInjection(event: BeforeBuildProgramEvent, createdF
     }
 }
 
+/**
+ * Tag for the diagnostics this plugin registers. They are rebuilt on every validation, because a change to an xml file
+ * (i.e. removing an `id`) affects a warning that lives in a brs file, which bsc would otherwise only clear when that brs file changes
+ */
+const diagnosticTag = 'bsc-plugin-auto-findnode';
+
 export function validateNodeWithIDInjection(program: Program) {
+    program.diagnostics.clearForTag(diagnosticTag);
     for (const scope of program.getScopes()) {
         if (isXmlScope(scope)) {
             const xmlFile = scope.xmlFile;
@@ -111,14 +118,14 @@ export function validateNodeWithIDInjection(program: Program) {
                                 let warningLocation = ids.get(id);
                                 if (warningLocation !== undefined) {
                                     program.diagnostics.register({
-                                        location: expression.location!,
+                                        location: expression,
                                         severity: DiagnosticSeverity.Warning,
                                         message: `Unnecessary call to 'm.top.findNode("${id}")'`,
                                         relatedInformation: [{
                                             message: `In scope '${scope.name}'`,
                                             location: warningLocation
                                         }]
-                                    });
+                                    }, { tags: [diagnosticTag] });
                                 }
                             }
                         }
