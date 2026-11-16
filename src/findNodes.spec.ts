@@ -461,6 +461,37 @@ describe('findnode', () => {
         }]);
     });
 
+    it('clears the warning when the id is removed from the xml file', () => {
+        program.setFile('components/ZombieKeyboard.bs', `
+            sub init()
+                m.helloZombieText = m.top.findNode("helloZombieText")
+            end sub
+        `);
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="Group">
+                <script uri="ZombieKeyboard.bs" />
+                <children>
+                    <label id="helloZombieText" />
+                </children>
+            </component>
+        `);
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([
+            `Unnecessary call to 'm.top.findNode("helloZombieText")'`
+        ]);
+
+        //only the xml file changes, so the brs file's diagnostics are not cleared by bsc
+        program.setFile('components/ZombieKeyboard.xml', `
+            <component name="ZombieKeyboard" extends="Group">
+                <script uri="ZombieKeyboard.bs" />
+                <children>
+                    <label />
+                </children>
+            </component>
+        `);
+        program.validate();
+        expect(program.getDiagnostics().map(x => x.message)).to.eql([]);
+    });
 
     it('it does not warn for findnode IDs NOT in the current xml file', () => {
         program.setFile('components/ZombieKeyboard.bs', `
